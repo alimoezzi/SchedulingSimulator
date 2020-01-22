@@ -10,7 +10,6 @@ class FCFS(BaseSch):
             w, i = self.q.popleft()
             return w, i
         elif self.burstArray[self.i] > 0:
-            # self.w.join()
             return self.w, self.i
         else:
             w, i = self.q.popleft()
