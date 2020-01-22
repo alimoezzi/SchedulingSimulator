@@ -1,13 +1,14 @@
 from collections import deque
 from copy import deepcopy
 
-from worker import Worker,create_worker
+from worker import Worker, create_worker
 from worker import sleep as wsleep
 from time import sleep
 
 
 class BaseSch:
     start = False
+
     def __init__(self, arrivalArray: list, burstArray: list, priorityArray: list = None) -> None:
         self.arrivalArray = arrivalArray
         self.priorityArray = priorityArray
@@ -34,7 +35,7 @@ class BaseSch:
         while sum(self.burstArray) != 0:
             w, i = self.pick_next()
             if self.w is None and self.i is None:
-                self.w, self.i = w,i
+                self.w, self.i = w, i
                 self.w.resume()
             elif self.burstArray[i] == 0:
                 print('stopping thread', i, 'remaining', sum(self.burstArray))
@@ -51,12 +52,13 @@ class BaseSch:
     def addAll(self, i):
         for j in range(len(self.waitArray)):
             if j != i:
-                if self.burstArray[j] != 0:
-                    self.waitArray[j] += 1
+                if self.burstArray[j] > 0:
+                    if max(self.waitArray) <= self.arrivalArray[j]:
+                        self.waitArray[j] += 1
 
     def process(self, index=None):
         while self.burstArray[index] > 0:
             if BaseSch.start:
                 print('\nthread' + str(index) + str(self.burstArray[index]) + '\n')
-                self.burstArray[index] -=1
+                self.burstArray[index] -= 1
                 wsleep(0.001)
