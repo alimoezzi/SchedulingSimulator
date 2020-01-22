@@ -16,12 +16,14 @@ class BaseSch:
         self.burstArray = burstArray
         self.waitArray = [0 for i in burstArray]
         self.comArray = deepcopy(burstArray)
-        self.processArray = [(create_worker(self.process, index=i).pause(), i) for i in range(len(burstArray))]
+        self.processArray = [(Worker(self.process), i) for i in range(len(burstArray))]
         self.q = deque()
         self.w = None
         self.i = None
         self.init_queue()
         self.elapse_time = 0
+        for i in range(len(self.burstArray)):
+            self.processArray[i][0].stop()
 
     def init_queue(self):
         pass
@@ -31,28 +33,28 @@ class BaseSch:
 
     def run(self):
         for i in range(len(self.burstArray)):
-            self.processArray[i][0].pause()
-        BaseSch.start = True
+            self.processArray[i][0].stop()
         print('run')
         while sum(self.burstArray) != 0:
             w, i = self.pick_next()
+            BaseSch.start = True
             if self.w is None and self.i is None:
                 self.w, self.i = w, i
-                self.w.resume()
+                self.w.start(index=self.i)
                 self.end(i)
             elif i != self.i:
-                self.w.pause()
+                self.w.stop()
                 self.w, self.i = w, i
                 sleep(0.001)
-                self.w.resume()
+                self.w.start(index=self.i)
                 self.end(i)
             else:
-                self.w.pause()
+                self.w.stop()
                 sleep(0.001)
-                self.w.resume()
+                self.w.start(index=self.i)
                 self.end(i)
-            self.addAll(self.i, self.elapse_time)
             self.elapse_time += 1
+            self.addAll(self.i, self.elapse_time)
 
     def end(self, i):
         if self.burstArray[i] == 0:
