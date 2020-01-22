@@ -1,5 +1,6 @@
 from collections import deque
 from copy import deepcopy
+from math import floor, ceil
 
 from worker import Worker, create_worker
 from worker import sleep as wsleep
@@ -20,6 +21,7 @@ class BaseSch:
         self.w = None
         self.i = None
         self.init_queue()
+        self.elapse_time = 0
 
     def init_queue(self):
         pass
@@ -37,23 +39,31 @@ class BaseSch:
             if self.w is None and self.i is None:
                 self.w, self.i = w, i
                 self.w.resume()
-            elif self.burstArray[i] == 0:
-                print('stopping thread', i, 'remaining', sum(self.burstArray))
-                self.w.stop()
-            elif w != self.w:
+                self.end(i)
+            elif i != self.i:
                 self.w.pause()
                 self.w, self.i = w, i
+                sleep(0.001)
                 self.w.resume()
-            sleep(0.001)
-            self.w.pause()
-            self.addAll(self.i)
-            self.w.resume()
+                self.end(i)
+            else:
+                self.w.pause()
+                sleep(0.001)
+                self.w.resume()
+                self.end(i)
+            self.addAll(self.i, self.elapse_time)
+            self.elapse_time += 1
 
-    def addAll(self, i):
+    def end(self, i):
+        if self.burstArray[i] == 0:
+            print('stopping thread', i, 'remaining', sum(self.burstArray))
+            self.w.stop()
+
+    def addAll(self, i, t):
         for j in range(len(self.waitArray)):
             if j != i:
                 if self.burstArray[j] > 0:
-                    if max(self.waitArray) <= self.arrivalArray[j]:
+                    if self.elapse_time > self.arrivalArray[j]:
                         self.waitArray[j] += 1
 
     def process(self, index=None):
