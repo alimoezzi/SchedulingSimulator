@@ -9,6 +9,7 @@ from time import sleep
 
 class BaseSch:
     start = False
+    tq = 1
 
     def __init__(self, arrivalArray: list, burstArray: list, priorityArray: list = None) -> None:
         self.arrivalArray = arrivalArray
@@ -22,6 +23,7 @@ class BaseSch:
         self.i = None
         self.init_queue()
         self.elapse_time = 0
+        self.raw = [[0 for i in range(50)] for i in range(len(self.burstArray))]
         for i in range(len(self.burstArray)):
             self.processArray[i][0].stop()
 
@@ -53,7 +55,7 @@ class BaseSch:
                 sleep(0.001)
                 self.w.start(index=self.i)
                 self.end(i)
-            self.elapse_time += 1
+            self.elapse_time += BaseSch.tq
             self.addAll(self.i, self.elapse_time)
 
     def end(self, i):
@@ -66,11 +68,12 @@ class BaseSch:
             if j != i:
                 if self.burstArray[j] > 0:
                     if self.elapse_time > self.arrivalArray[j]:
-                        self.waitArray[j] += 1
+                        self.waitArray[j] += BaseSch.tq
 
     def process(self, index=None):
         while self.burstArray[index] > 0:
             if BaseSch.start:
-                print('\nthread' + str(index) + str(self.burstArray[index]) + '\n')
-                self.burstArray[index] -= 1
+                # print('\nthread' + str(index) + str(self.burstArray[index]) + '\n')
+                self.raw[index][self.elapse_time] = 1
+                self.burstArray[index] -= BaseSch.tq
                 wsleep(0.001)
