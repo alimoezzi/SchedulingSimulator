@@ -24,3 +24,4 @@ if __name__ == '__main__':
     print('wait', f.waitArray)
     print('com', f.comArray)
     print('burst', f.burstArray)
+    print('raw',f.raw)
