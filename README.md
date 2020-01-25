@@ -84,4 +84,10 @@ The program then generates a new `.xlsx` file for every algorithm
 are prompted in the program as the algorithms runs.
 
 ### Algorithm implementation
-##### Each algorithm are implemented separately in the `algorithm` folder    
+##### Each algorithm are implemented separately in the `algorithm` folder
+To implement a new algorithm 2 methods from `base.py` needs to be overloaded
+1. pick_next
+2. init_queue
+`pick_next` should return the next process as it called
+`init_queue` will initiate the queue that might be needed for various scheduling
+algorithm, although some algorithm might not require it     
